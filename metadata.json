@@ -1,0 +1,6 @@
+{
+  "name": "Cierre de Ventas Restaurante - Rediseño Heurísticas de Nielsen",
+  "description": "Rediseño accesible y moderno de la interfaz de cierre diario de ventas e impuestos (18%) para restaurante rápido, fundamentado en los 10 principios heurísticos de Jakob Nielsen.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

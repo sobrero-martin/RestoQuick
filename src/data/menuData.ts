@@ -1,0 +1,68 @@
+import { MenuItem } from '../types';
+
+export const INITIAL_MENU_ITEMS: MenuItem[] = [
+  {
+    id: 'hamburguesa',
+    name: 'Hamburguesa',
+    price: 2.50,
+    category: 'Comidas',
+    description: 'Hamburguesa clásica de carne vacuna a la parrilla con aderezos',
+    iconName: 'burger',
+  },
+  {
+    id: 'cerveza',
+    name: 'Cerveza',
+    price: 4.00,
+    category: 'Bebidas',
+    description: 'Cerveza fría personal 330ml',
+    iconName: 'beer',
+  },
+  {
+    id: 'gaseosa',
+    name: 'Gaseosa',
+    price: 3.00,
+    category: 'Bebidas',
+    description: 'Bebida gaseosa personal 500ml',
+    iconName: 'soda',
+  },
+  {
+    id: 'ensalada',
+    name: 'Ensalada',
+    price: 1.50,
+    category: 'Acompañamientos y Postres',
+    description: 'Porción fresca de vegetales mixtos con vinagreta',
+    iconName: 'salad',
+  },
+  {
+    id: 'salchichas',
+    name: 'Salchichas',
+    price: 2.00,
+    category: 'Comidas',
+    description: 'Porción de salchichas salteadas al paso',
+    iconName: 'hotdog',
+  },
+  {
+    id: 'refresco',
+    name: 'Refresco',
+    price: 1.00,
+    category: 'Bebidas',
+    description: 'Vaso de refresco natural de frutas',
+    iconName: 'cup',
+  },
+  {
+    id: 'sopa',
+    name: 'Sopa',
+    price: 1.50,
+    category: 'Comidas',
+    description: 'Tazón caliente de sopa casera del día',
+    iconName: 'soup',
+  },
+  {
+    id: 'postre',
+    name: 'Postre',
+    price: 1.50,
+    category: 'Acompañamientos y Postres',
+    description: 'Porción de postre dulce tradicional',
+    iconName: 'cake',
+  },
+];
