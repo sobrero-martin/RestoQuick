@@ -143,7 +143,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
           {/* Price */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Precio unitario ($)
+              Precio unitario sin impuestos ($)
             </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">

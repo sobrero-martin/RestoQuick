@@ -26,21 +26,28 @@ export const ClosingSummary: React.FC<ClosingSummaryProps> = ({
 }) => {
   const [copied, setCopied] = useState<boolean>(false);
 
+  const formatMoney = (amount: number) => {
+    return `$ ${amount.toLocaleString('es-AR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
   const handleCopySummary = async () => {
     const activeItems = calculation.items.filter((i) => i.quantity > 0);
     const textReport = [
       '========================================',
-      '     RESTAURANTE RÁPIDO - CIERRE DIARIO',
+      '        RESTOQUICK - CIERRE DIARIO',
       `Fecha/Hora: ${new Date().toLocaleString('es-AR')}`,
       '========================================',
       ...activeItems.map(
-        (i) => `${i.name.padEnd(16)} ${i.quantity.toString().padStart(4)} un.  $ ${i.subtotal.toFixed(2).padStart(8)}`
+        (i) => `${i.name.padEnd(22)} ${i.quantity.toString().padStart(4)} un.  ${formatMoney(i.subtotal).padStart(14)}`
       ),
       '----------------------------------------',
       `TOTAL UNIDADES:      ${calculation.totalUnits} un.`,
-      `VENTA TOTAL:         $ ${calculation.totalSales.toFixed(2)}`,
-      `IMPUESTO (18%):      $ ${calculation.taxAmount.toFixed(2)}`,
-      `VENTA NETA:          $ ${calculation.netSales.toFixed(2)}`,
+      `SUBTOTAL NETO:       ${formatMoney(calculation.netSales)}`,
+      `IMPUESTO (18%):      ${formatMoney(calculation.taxAmount)}`,
+      `VENTA TOTAL:         ${formatMoney(calculation.totalSales)}`,
       '========================================',
     ].join('\n');
 
@@ -95,38 +102,38 @@ export const ClosingSummary: React.FC<ClosingSummaryProps> = ({
           <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex flex-col gap-1">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                Venta Total del Día
+                Venta Total (con impuestos)
               </span>
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 {calculation.totalUnits} unidades
               </span>
             </div>
             <div className="mt-1">
-              <span className="text-3xl font-extrabold font-mono text-slate-900 dark:text-white tabular-nums tracking-tight">
-                $ {calculation.totalSales.toFixed(2)}
+              <span className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 dark:text-white tabular-nums tracking-tight">
+                {formatMoney(calculation.totalSales)}
               </span>
             </div>
           </div>
 
           {/* Breakdown Rows */}
           <div className="space-y-2.5 text-sm">
+            {/* Net Sales */}
+            <div className="flex items-center justify-between py-1 border-b border-dashed border-slate-200 dark:border-slate-800">
+              <span className="text-slate-600 dark:text-slate-400">
+                Subtotal neto (sin impuestos)
+              </span>
+              <span className="font-mono font-medium text-slate-700 dark:text-slate-300 tabular-nums">
+                {formatMoney(calculation.netSales)}
+              </span>
+            </div>
+
             {/* Tax Row */}
             <div className="flex items-center justify-between py-1 border-b border-dashed border-slate-200 dark:border-slate-800">
               <span className="text-slate-600 dark:text-slate-400">
                 Impuesto a pagar (18%)
               </span>
               <span className="font-mono font-bold text-amber-600 dark:text-amber-400 tabular-nums">
-                $ {calculation.taxAmount.toFixed(2)}
-              </span>
-            </div>
-
-            {/* Net Sales */}
-            <div className="flex items-center justify-between py-1 border-b border-dashed border-slate-200 dark:border-slate-800">
-              <span className="text-slate-600 dark:text-slate-400">
-                Venta neta (recaudación base)
-              </span>
-              <span className="font-mono font-medium text-slate-700 dark:text-slate-300 tabular-nums">
-                $ {calculation.netSales.toFixed(2)}
+                {formatMoney(calculation.taxAmount)}
               </span>
             </div>
           </div>
@@ -149,13 +156,13 @@ export const ClosingSummary: React.FC<ClosingSummaryProps> = ({
                   .map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between py-1 text-[11px]"
+                      className="flex items-start justify-between py-1 text-[11px] gap-2"
                     >
-                      <span className="truncate max-w-[140px] text-slate-800 dark:text-slate-200 font-sans">
-                        {item.name} <span className="text-slate-400">×{item.quantity}</span>
+                      <span className="text-slate-800 dark:text-slate-200 font-sans leading-tight break-words flex-1">
+                        {item.name} <span className="text-slate-400 font-mono">×{item.quantity}</span>
                       </span>
-                      <span className="font-mono tabular-nums text-slate-700 dark:text-slate-300">
-                        $ {item.subtotal.toFixed(2)}
+                      <span className="font-mono tabular-nums text-slate-700 dark:text-slate-300 shrink-0">
+                        {formatMoney(item.subtotal)}
                       </span>
                     </div>
                   ))

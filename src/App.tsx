@@ -27,9 +27,6 @@ export default function App() {
     return initial;
   });
 
-  // History stack for Undo
-  const [historyStack, setHistoryStack] = useState<Record<string, number>[]>([]);
-
   // Closing status
   const [isFinalized, setIsFinalized] = useState<boolean>(false);
 
@@ -80,22 +77,21 @@ export default function App() {
     });
 
     const totalUnits = items.reduce((acc, curr) => acc + curr.quantity, 0);
-    const totalSales = items.reduce((acc, curr) => acc + curr.subtotal, 0);
-    const taxAmount = Number((totalSales * 0.18).toFixed(2));
-    const netSales = Number((totalSales - taxAmount).toFixed(2));
+    const netSales = items.reduce((acc, curr) => acc + curr.subtotal, 0);
+    const taxAmount = Number((netSales * 0.18).toFixed(2));
+    const totalSales = Number((netSales + taxAmount).toFixed(2));
 
     return {
       items,
       totalUnits,
-      totalSales,
-      taxAmount,
       netSales,
+      taxAmount,
+      totalSales,
     };
   }, [menuItems, sales]);
 
-  // Update quantity handler with history push
+  // Update quantity handler
   const handleQuantityChange = (itemId: string, newQuantity: number) => {
-    setHistoryStack((prev) => [...prev.slice(-9), sales]);
     setSales((prev) => ({
       ...prev,
       [itemId]: newQuantity,
@@ -141,7 +137,6 @@ export default function App() {
       confirmLabel: 'Eliminar ítem',
       isDestructive: true,
       onConfirm: () => {
-        setHistoryStack((prev) => [...prev.slice(-9), sales]);
         setMenuItems((prev) => prev.filter((i) => i.id !== item.id));
         setSales((prev) => {
           const copy = { ...prev };
@@ -154,26 +149,16 @@ export default function App() {
     });
   };
 
-  // Undo handler
-  const handleUndo = () => {
-    if (historyStack.length === 0) return;
-    const previous = historyStack[historyStack.length - 1];
-    setHistoryStack((prev) => prev.slice(0, -1));
-    setSales(previous);
-    setToastMessage('Acción deshecha correctamente.');
-  };
-
   // Clear all with confirmation
   const handleClearAll = () => {
     setConfirmConfig({
       isOpen: true,
       title: '¿Reiniciar todas las cantidades a cero?',
       message:
-        'Esta acción pondrá en 0 todas las cantidades vendidas ingresadas. Podrás usar la opción "Deshacer" si lo necesitas.',
+        'Esta acción pondrá en 0 todas las cantidades vendidas registradas en la planilla de caja.',
       confirmLabel: 'Sí, limpiar todo',
       isDestructive: true,
       onConfirm: () => {
-        setHistoryStack((prev) => [...prev.slice(-9), sales]);
         const resetMap: Record<string, number> = {};
         menuItems.forEach((i) => {
           resetMap[i.id] = 0;
@@ -208,15 +193,12 @@ export default function App() {
     });
   };
 
-  const activeCount = calculation.items.filter((i) => i.quantity > 0).length;
-
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors">
       {/* Top Header */}
       <Header
         isDarkMode={isDarkMode}
         onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
-        activeCount={activeCount}
       />
 
       {/* Main Container */}
@@ -230,8 +212,6 @@ export default function App() {
               sales={sales}
               onQuantityChange={handleQuantityChange}
               onClearAll={handleClearAll}
-              onUndo={handleUndo}
-              canUndo={historyStack.length > 0}
               onOpenAddItem={handleOpenAddItem}
               onEditItem={handleOpenEditItem}
               onDeleteItem={handleDeleteItem}

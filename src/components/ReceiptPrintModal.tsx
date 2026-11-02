@@ -19,6 +19,13 @@ export const ReceiptPrintModal: React.FC<ReceiptPrintModalProps> = ({
     window.print();
   };
 
+  const formatMoney = (amount: number) => {
+    return `$ ${amount.toLocaleString('es-AR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
   const activeItems = calculation.items.filter((i) => i.quantity > 0);
   const currentDate = new Date().toLocaleDateString('es-AR', {
     weekday: 'long',
@@ -60,9 +67,9 @@ export const ReceiptPrintModal: React.FC<ReceiptPrintModalProps> = ({
           {/* Header */}
           <div className="text-center pb-3 border-b border-dashed border-slate-300">
             <h2 id="ticket-title" className="text-base font-bold tracking-tight text-slate-900">
-              RESTAURANTE RÁPIDO
+              RESTOQUICK
             </h2>
-            <p className="text-[11px] text-slate-500">C.U.I.T. 30-71429810-4</p>
+            <p className="text-[11px] text-slate-500">C.U.I.T. 30-71429810-4 · IVA Responsable Inscripto</p>
             <div className="mt-2 text-[10px] uppercase font-bold text-slate-700 bg-slate-100 py-0.5 rounded">
               COMPROBANTE DE CIERRE DIARIO DE CAJA
             </div>
@@ -93,22 +100,22 @@ export const ReceiptPrintModal: React.FC<ReceiptPrintModalProps> = ({
             <div className="flex justify-between font-bold text-[10px] uppercase text-slate-700 pb-1.5 border-b border-slate-200">
               <span className="w-1/2">Menú / Ítem</span>
               <span className="w-1/4 text-center">Cant.</span>
-              <span className="w-1/4 text-right">Subtotal</span>
+              <span className="w-1/4 text-right">Subtotal neto</span>
             </div>
             <div className="divide-y divide-slate-100 py-1 space-y-1">
               {activeItems.map((item) => (
-                <div key={item.id} className="flex justify-between text-[11px] py-0.5">
-                  <div className="w-1/2 truncate font-sans">
-                    <span>{item.name}</span>
-                    <span className="text-[9px] text-slate-400 block font-mono">
-                      @ $ {item.price.toFixed(2)}
+                <div key={item.id} className="flex justify-between text-[11px] py-1 border-b border-dotted border-slate-100 last:border-0">
+                  <div className="w-1/2 font-sans pr-2">
+                    <span className="break-words font-medium block leading-snug">{item.name}</span>
+                    <span className="text-[9px] text-slate-400 block font-mono mt-0.5">
+                      @ {formatMoney(item.price)}
                     </span>
                   </div>
-                  <div className="w-1/4 text-center tabular-nums">
+                  <div className="w-1/4 text-center tabular-nums self-center">
                     {item.quantity}
                   </div>
-                  <div className="w-1/4 text-right tabular-nums font-semibold">
-                    $ {item.subtotal.toFixed(2)}
+                  <div className="w-1/4 text-right tabular-nums font-semibold self-center">
+                    {formatMoney(item.subtotal)}
                   </div>
                 </div>
               ))}
@@ -122,16 +129,16 @@ export const ReceiptPrintModal: React.FC<ReceiptPrintModalProps> = ({
               <span className="font-bold tabular-nums text-slate-900">{calculation.totalUnits} un.</span>
             </div>
             <div className="flex justify-between text-slate-600">
-              <span>Venta Neta (Base Imponible):</span>
-              <span className="tabular-nums font-semibold">$ {calculation.netSales.toFixed(2)}</span>
+              <span>Subtotal Neto (sin impuestos):</span>
+              <span className="tabular-nums font-semibold">{formatMoney(calculation.netSales)}</span>
             </div>
             <div className="flex justify-between text-slate-600">
               <span>Impuesto (18%):</span>
-              <span className="tabular-nums font-semibold">$ {calculation.taxAmount.toFixed(2)}</span>
+              <span className="tabular-nums font-semibold">{formatMoney(calculation.taxAmount)}</span>
             </div>
-            <div className="flex justify-between text-sm font-bold text-slate-900 pt-1 border-t border-slate-200">
-              <span>VENTA TOTAL:</span>
-              <span className="tabular-nums text-base">$ {calculation.totalSales.toFixed(2)}</span>
+            <div className="flex justify-between text-sm font-bold text-slate-900 pt-1.5 border-t border-slate-200">
+              <span>VENTA TOTAL (CON IMP.):</span>
+              <span className="tabular-nums text-base">{formatMoney(calculation.totalSales)}</span>
             </div>
           </div>
 

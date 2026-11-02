@@ -4,7 +4,6 @@ import { Moon, Sun, UtensilsCrossed } from 'lucide-react';
 interface HeaderProps {
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
-  activeCount: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({

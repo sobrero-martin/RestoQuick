@@ -7,7 +7,6 @@ import {
   RotateCcw, 
   Search, 
   Trash2, 
-  Undo2,
   PlusCircle,
   Pencil
 } from 'lucide-react';
@@ -17,8 +16,6 @@ interface SalesTableProps {
   sales: Record<string, number>;
   onQuantityChange: (itemId: string, quantity: number) => void;
   onClearAll: () => void;
-  onUndo: () => void;
-  canUndo: boolean;
   onOpenAddItem: () => void;
   onEditItem: (item: MenuItem) => void;
   onDeleteItem: (item: MenuItem) => void;
@@ -29,8 +26,6 @@ export const SalesTable: React.FC<SalesTableProps> = ({
   sales,
   onQuantityChange,
   onClearAll,
-  onUndo,
-  canUndo,
   onOpenAddItem,
   onEditItem,
   onDeleteItem,
@@ -75,7 +70,7 @@ export const SalesTable: React.FC<SalesTableProps> = ({
               Registro de Ventas del Menú
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Ingresa la cantidad vendida por cada ítem.
+              Precios antes de impuestos. El 18% se aplica sobre la venta neta total.
             </p>
           </div>
 
@@ -89,18 +84,6 @@ export const SalesTable: React.FC<SalesTableProps> = ({
               <PlusCircle className="w-3.5 h-3.5" />
               <span>Agregar Ítem al Menú</span>
             </button>
-
-            {canUndo && (
-              <button
-                type="button"
-                onClick={onUndo}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shadow-xs cursor-pointer"
-                title="Deshacer el último cambio"
-              >
-                <Undo2 className="w-3.5 h-3.5" />
-                <span>Deshacer</span>
-              </button>
-            )}
 
             <button
               type="button"
@@ -159,22 +142,22 @@ export const SalesTable: React.FC<SalesTableProps> = ({
 
       {/* Table Content */}
       <div className="overflow-x-auto">
-        <table className="w-full table-fixed text-left border-collapse min-w-[620px]">
+        <table className="w-full table-fixed text-left border-collapse min-w-[700px]">
           <thead>
             <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-100/50 dark:bg-slate-800/40 text-[11px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-              <th scope="col" className="py-3 px-4 sm:px-6 w-[36%] sm:w-[40%]">
+              <th scope="col" className="py-3 px-4 sm:px-6 w-[32%] sm:w-[35%] text-center whitespace-nowrap">
                 Producto / Menú
               </th>
-              <th scope="col" className="py-3 px-3 text-right w-24 sm:w-28">
-                Precio
+              <th scope="col" className="py-3 px-3 text-center w-36 sm:w-40 whitespace-nowrap">
+                Precio (sin imp.)
               </th>
-              <th scope="col" className="py-3 px-2 text-center w-44 sm:w-48">
+              <th scope="col" className="py-3 px-2 text-center w-44 sm:w-48 whitespace-nowrap">
                 Cantidad
               </th>
-              <th scope="col" className="py-3 px-4 sm:px-6 text-right w-28 sm:w-32">
-                Subtotal
+              <th scope="col" className="py-3 px-3 text-center w-36 sm:w-40 whitespace-nowrap">
+                Subtotal neto
               </th>
-              <th scope="col" className="py-3 px-3 text-center w-20 sm:w-24">
+              <th scope="col" className="py-3 px-3 text-center w-20 sm:w-24 whitespace-nowrap">
                 Acciones
               </th>
             </tr>
@@ -198,31 +181,34 @@ export const SalesTable: React.FC<SalesTableProps> = ({
                       qty > 0 ? 'bg-emerald-50/20 dark:bg-emerald-950/10' : ''
                     }`}
                   >
-                    {/* Item Info */}
-                    <td className="py-3.5 px-4 sm:px-6">
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 shrink-0 border border-slate-200/60 dark:border-slate-700/60">
-                          <ItemIcon iconName={item.iconName} className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    {/* Item Info - Centered with header */}
+                    <td className="py-3 px-4 sm:px-6">
+                      <div className="flex items-center justify-center gap-2.5 max-w-sm mx-auto">
+                        <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 shrink-0 border border-slate-200/60 dark:border-slate-700/60">
+                          <ItemIcon iconName={item.iconName} className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                         </div>
-                        <div className="truncate">
-                          <span className="font-semibold text-slate-900 dark:text-slate-100 block truncate">
+                        <div className="text-left min-w-0 flex-1">
+                          <span className="font-semibold text-slate-900 dark:text-slate-100 block text-xs leading-snug break-words">
                             {item.name}
                           </span>
-                          <span className="text-xs text-slate-500 dark:text-slate-400 block truncate">
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5 break-words">
                             {item.category}
                           </span>
                         </div>
                       </div>
                     </td>
 
-                    {/* Unit Price in $ */}
-                    <td className="py-3.5 px-3 text-right font-mono font-medium text-slate-700 dark:text-slate-300 tabular-nums whitespace-nowrap">
-                      $ {item.price.toFixed(2)}
+                    {/* Unit Price in $ (pre-tax) - Centered with header */}
+                    <td className="py-3 px-3 text-center font-mono font-medium text-slate-700 dark:text-slate-300 tabular-nums whitespace-nowrap text-xs sm:text-[13px]">
+                      $ {item.price.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
 
-                    {/* Quantity Input with Steppers & Reserved Reset Button */}
-                    <td className="py-3.5 px-2">
+                    {/* Quantity Input with Steppers & Symmetrical Left Spacer - Dead Centered */}
+                    <td className="py-3 px-2 text-center">
                       <div className="flex items-center justify-center gap-1 w-full">
+                        {/* Balancing spacer matching the 24px reset button */}
+                        <div className="w-6 h-6 shrink-0" aria-hidden="true" />
+
                         <button
                           type="button"
                           onClick={() => handleIncrement(item.id, -1)}
@@ -269,19 +255,15 @@ export const SalesTable: React.FC<SalesTableProps> = ({
                       </div>
                     </td>
 
-                    {/* Subtotal in $ with tabular-nums and fixed block */}
-                    <td className="py-3.5 px-4 sm:px-6 text-right whitespace-nowrap">
-                      <span className={`font-mono font-bold text-sm tabular-nums block ${
-                        subtotal > 0
-                          ? 'text-emerald-700 dark:text-emerald-400'
-                          : 'text-slate-400 dark:text-slate-500'
-                      }`}>
-                        $ {subtotal.toFixed(2)}
+                    {/* Subtotal in $ - Centered identically to Precio (sin imp.) */}
+                    <td className="py-3 px-3 text-center font-mono font-bold text-xs sm:text-[13px] tabular-nums whitespace-nowrap">
+                      <span className={subtotal > 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}>
+                        $ {subtotal.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                     </td>
 
                     {/* Actions: Edit & Delete for EVERY row */}
-                    <td className="py-3.5 px-4 text-center">
+                    <td className="py-3 px-3 text-center">
                       <div className="flex items-center justify-center gap-1.5">
                         <button
                           type="button"
