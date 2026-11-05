@@ -33,7 +33,7 @@ export const SalesTable: React.FC<SalesTableProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const categories = ['Todos', 'Comidas', 'Bebidas', 'Acompañamientos y Postres'];
+  const categories = ['Todos', 'Combos y Promos', 'Comidas', 'Bebidas', 'Acompañamientos y Postres'];
 
   const filteredItems = items.filter((item) => {
     const matchesCategory =

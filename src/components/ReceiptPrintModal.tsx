@@ -1,17 +1,19 @@
 import React from 'react';
-import { ClosingCalculation } from '../types';
-import { X, Printer } from 'lucide-react';
+import { ClosingCalculation, PaymentDetails } from '../types';
+import { X, Printer, CheckCircle2 } from 'lucide-react';
 
 interface ReceiptPrintModalProps {
   isOpen: boolean;
   onClose: () => void;
   calculation: ClosingCalculation;
+  paymentDetails?: PaymentDetails | null;
 }
 
 export const ReceiptPrintModal: React.FC<ReceiptPrintModalProps> = ({
   isOpen,
   onClose,
   calculation,
+  paymentDetails,
 }) => {
   if (!isOpen) return null;
 
@@ -50,7 +52,7 @@ export const ReceiptPrintModal: React.FC<ReceiptPrintModalProps> = ({
         {/* Modal Controls */}
         <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50 print:hidden">
           <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-            Vista Previa de Comprobante
+            {paymentDetails ? 'Comprobante de Pago de Mesa' : 'Vista Previa de Comprobante'}
           </span>
           <button
             type="button"
@@ -71,7 +73,9 @@ export const ReceiptPrintModal: React.FC<ReceiptPrintModalProps> = ({
             </h2>
             <p className="text-[11px] text-slate-500">C.U.I.T. 30-71429810-4 · IVA Responsable Inscripto</p>
             <div className="mt-2 text-[10px] uppercase font-bold text-slate-700 bg-slate-100 py-0.5 rounded">
-              COMPROBANTE DE CIERRE DIARIO DE CAJA
+              {paymentDetails
+                ? `TICKET DE VENTA · ${paymentDetails.tableName?.toUpperCase() || 'MESA'}`
+                : 'COMPROBANTE DE CIERRE DIARIO DE CAJA'}
             </div>
           </div>
 
@@ -83,17 +87,59 @@ export const ReceiptPrintModal: React.FC<ReceiptPrintModalProps> = ({
             </div>
             <div className="flex justify-between">
               <span>Hora de emisión:</span>
-              <span className="font-semibold text-slate-900">{currentTime}</span>
+              <span className="font-semibold text-slate-900">{paymentDetails?.timestamp || currentTime}</span>
             </div>
-            <div className="flex justify-between">
-              <span>Turno:</span>
-              <span className="font-semibold text-slate-900">Jornada Completa</span>
-            </div>
+            {paymentDetails?.tableName && (
+              <div className="flex justify-between">
+                <span>Ubicación:</span>
+                <span className="font-semibold text-slate-900">{paymentDetails.tableName}</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span>Caja:</span>
-              <span className="font-semibold text-slate-900">Caja Principal #01</span>
+              <span className="font-semibold text-slate-900">Terminal Principal #01</span>
             </div>
           </div>
+
+          {/* Payment Method Details (If applicable) */}
+          {paymentDetails && (
+            <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 text-[11px] space-y-1">
+              <div className="flex justify-between">
+                <span className="font-bold text-slate-700">MÉTODO DE PAGO:</span>
+                <span className="font-bold text-emerald-700 uppercase">
+                  {paymentDetails.method === 'efectivo'
+                    ? 'Efectivo'
+                    : paymentDetails.method === 'tarjeta_debito'
+                    ? `Tarjeta Débito (${paymentDetails.cardBrand})`
+                    : paymentDetails.method === 'tarjeta_credito'
+                    ? `Tarjeta Crédito (${paymentDetails.cardBrand} - ${paymentDetails.cardInstallments} cuota/s)`
+                    : paymentDetails.method === 'transferencia_mp'
+                    ? `QR Mercado Pago (${paymentDetails.mpReference})`
+                    : `Cuenta Dividida (${paymentDetails.splitDiners} pers.)`}
+                </span>
+              </div>
+
+              {paymentDetails.cashGiven && (
+                <>
+                  <div className="flex justify-between text-slate-500">
+                    <span>Abona con:</span>
+                    <span className="font-semibold">{formatMoney(paymentDetails.cashGiven)}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-500">
+                    <span>Vuelto entregado:</span>
+                    <span className="font-semibold text-emerald-600">{formatMoney(paymentDetails.change || 0)}</span>
+                  </div>
+                </>
+              )}
+
+              {paymentDetails.amountPerDiner && (
+                <div className="flex justify-between text-slate-500">
+                  <span>Importe por persona ({paymentDetails.splitDiners}p):</span>
+                  <span className="font-semibold">{formatMoney(paymentDetails.amountPerDiner)}</span>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Items Table */}
           <div className="border-b border-dashed border-slate-300 pb-3">
@@ -125,7 +171,7 @@ export const ReceiptPrintModal: React.FC<ReceiptPrintModalProps> = ({
           {/* Financial Totals in $ */}
           <div className="space-y-1 text-[11px] border-b border-dashed border-slate-300 pb-3">
             <div className="flex justify-between text-slate-600">
-              <span>Total Unidades Vendidas:</span>
+              <span>Total Unidades:</span>
               <span className="font-bold tabular-nums text-slate-900">{calculation.totalUnits} un.</span>
             </div>
             <div className="flex justify-between text-slate-600">
@@ -133,27 +179,27 @@ export const ReceiptPrintModal: React.FC<ReceiptPrintModalProps> = ({
               <span className="tabular-nums font-semibold">{formatMoney(calculation.netSales)}</span>
             </div>
             <div className="flex justify-between text-slate-600">
-              <span>Impuesto (18%):</span>
-              <span className="tabular-nums font-semibold">{formatMoney(calculation.taxAmount)}</span>
+              <span>Impuesto (18% IVA):</span>
+              <span className="tabular-nums font-semibold text-amber-600">{formatMoney(calculation.taxAmount)}</span>
             </div>
             <div className="flex justify-between text-sm font-bold text-slate-900 pt-1.5 border-t border-slate-200">
-              <span>VENTA TOTAL (CON IMP.):</span>
-              <span className="tabular-nums text-base">{formatMoney(calculation.totalSales)}</span>
+              <span>VENTA TOTAL:</span>
+              <span className="tabular-nums text-base font-extrabold text-emerald-700">{formatMoney(calculation.totalSales)}</span>
             </div>
           </div>
 
           {/* Signatures */}
-          <div className="pt-6 grid grid-cols-2 gap-4 text-center text-[10px] text-slate-500">
+          <div className="pt-4 grid grid-cols-2 gap-4 text-center text-[10px] text-slate-500">
             <div>
-              <div className="border-t border-slate-400 pt-1">Firma Cajero</div>
+              <div className="border-t border-slate-400 pt-1">Atendido por Mozo</div>
             </div>
             <div>
-              <div className="border-t border-slate-400 pt-1">Firma Supervisor</div>
+              <div className="border-t border-slate-400 pt-1">Caja / Control</div>
             </div>
           </div>
 
           <div className="text-center text-[9px] text-slate-400 pt-2">
-            *** RestoQuick · Comprobante Interno de Control de Caja ***
+            *** ¡Muchas gracias por su visita a RestoQuick! ***
           </div>
         </div>
 

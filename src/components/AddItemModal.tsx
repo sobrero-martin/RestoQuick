@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MenuItem } from '../types';
+import { MenuItem, CategoryType } from '../types';
 import { ItemIcon } from './ItemIcon';
 import { X, Plus, Edit2, AlertCircle } from 'lucide-react';
 
@@ -31,7 +31,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
 }) => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
-  const [category, setCategory] = useState<'Comidas' | 'Bebidas' | 'Acompañamientos y Postres'>('Comidas');
+  const [category, setCategory] = useState<CategoryType>('Comidas');
   const [iconName, setIconName] = useState<any>('utensils');
   const [error, setError] = useState<string | null>(null);
 
@@ -171,9 +171,10 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
             </label>
             <select
               value={category}
-              onChange={(e) => setCategory(e.target.value as any)}
+              onChange={(e) => setCategory(e.target.value as CategoryType)}
               className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 cursor-pointer"
             >
+              <option value="Combos y Promos">Combos y Promos</option>
               <option value="Comidas">Comidas</option>
               <option value="Bebidas">Bebidas</option>
               <option value="Acompañamientos y Postres">Acompañamientos y Postres</option>
